@@ -1,7 +1,7 @@
 const API_KEY = '0fe15eb8597d4e9ea15a41e4e1d3d82a';
 
 function fetchHeadlines(category){
-    let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=${API_KEY}`;
+    let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=${API_KEY}&pageSize=10`;
     if ( category ){
         url += `&category=${category}`;
     }
@@ -29,10 +29,11 @@ function createArticleCard(article){
     const content = document.createElement('p');
     const infoCont = document.createElement('div');
     
-    container.class = "article-container";
-    infoCont.class = "article-info"; 
+    container.className = "article";
+    infoCont.className = "article-info"; 
 
     img.src =article.urlToImage;
+    img.setAttribute('alt', 'Article Image')
     newsOutlet.textContent = article.source.name;
     headline.textContent = titleSourceRemover(article.title);
     content.textContent = article.description;
