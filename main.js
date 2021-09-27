@@ -105,14 +105,13 @@ async function getHeadlines(initial, category){
 
 function handleCategoricalNews(e){
     if ( e.target.className === "nav-btn" ){
-        getHeadlines(false, e.target.textContent.toLowerCase());
+        // getHeadlines(false, e.target.textContent.toLowerCase());
+        location.href = `./${e.target.textContent.toLowerCase()}.html`;
     }
 }
 
 
 window.addEventListener("load", () => {
-    getHeadlines(true);
     const navBtns = document.getElementById("nav-btns");
     navBtns.addEventListener("click", handleCategoricalNews)
 })
-
