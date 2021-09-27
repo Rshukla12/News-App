@@ -14,16 +14,57 @@ function fetchHeadlines(category){
         });
 }
 
+function titleSourceRemover(title){
+    const index = title.lastIndexOf('-');
+    title = title.slice(0, index-1);
+    return title;
+}
+
+
+function createArticleCard(article){
+    const container = document.createElement('div');
+    const img = document.createElement('img');
+    const newsOutlet = document.createElement('h2');
+    const headline = document.createElement('h1');
+    const content = document.createElement('p');
+    const infoCont = document.createElement('div');
+    
+    container.class = "article-container";
+    infoCont.class = "article-info"; 
+
+    img.src =article.urlToImage;
+    newsOutlet.textContent = article.source.name;
+    headline.textContent = titleSourceRemover(article.title);
+    content.textContent = article.description;
+    
+    infoCont.append(newsOutlet, headline, content);
+    container.append(img, infoCont);
+    return container;
+}
+
 
 function displayHeadlines(headlines){
-    
+    const container = document.getElementById('headlines');
+
+    for ( const article of headlines ){
+        const artElem = createArticleCard(article);
+        container.append(artElem);
+    }
+}
+
+function displayError(code){
+
 }
 
 
 async function getHeadlines(){
     try {
         const headlines = await fetchHeadlines();
-        console.log(headlines.articles)
+        if ( headlines.status == 'ok' ) {
+            displayHeadlines(headlines.articles);
+        } else {
+            displayError('500');
+        }
     } catch ( err ){
         console.log(err);
     }
