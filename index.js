@@ -23,43 +23,55 @@ function titleSourceRemover(title){
 function displayLoading(isLoading){
     const container = document.getElementById('headlines');
     if ( isLoading ){
+        container.style.display = "none"
         const spinner = document.createElement('div');
         spinner.id = "spinner";
-        container.append(spinner)
+        document.body.append(spinner)
     } else {
         const spinner = document.getElementById('spinner');
         spinner.remove();
+        container.style.display = "block"
     }
     
 }
 
-
 function createArticleCard(article){
     const container = document.createElement('div');
     const img = document.createElement('img');
-    const newsOutlet = document.createElement('h2');
+    const newsOutlet = document.createElement('h4');
     const headline = document.createElement('h1');
     const content = document.createElement('p');
+    const published = document.createElement('h4')
     const infoCont = document.createElement('div');
-    
+    const header = document.createElement('div');
+
+    header.className = "article-header";
     container.className = "article";
     infoCont.className = "article-info"; 
-
-    img.src =article.urlToImage;
+    
+    const timeStr = new Date(article.publishedAt);
+    const publish = Math.floor((new Date().getTime() - timeStr.getTime())/3600000);
+    img.src = article.urlToImage;
     img.setAttribute('alt', 'Article Image')
     newsOutlet.textContent = article.source.name;
     headline.textContent = titleSourceRemover(article.title);
     content.textContent = article.description;
-    
-    infoCont.append(newsOutlet, headline, content);
+    published.textContent = "Published " + publish + " Hrs Ago";
+
+    if ( !article.urlToImage ){
+        img.src = 'https://www.albertadoctors.org/images/ama-master/feature/Stock%20photos/News.jpg'
+    }
+
+    header.append(newsOutlet, published)
+    infoCont.append(header, headline, content);
     container.append(img, infoCont);
     return container;
 }
 
-
 function displayHeadlines(headlines){
     const container = document.getElementById('headlines');
-
+    container.innerHTML = null;
+    
     for ( const article of headlines ){
         const artElem = createArticleCard(article);
         container.append(artElem);
@@ -67,14 +79,19 @@ function displayHeadlines(headlines){
 }
 
 function displayError(code){
-
+    console.log(500)
 }
 
 
-async function getHeadlines(){
+async function getHeadlines(initial, category){
     try {
         displayLoading(true);
-        const headlines = await fetchHeadlines();
+        let headlines;
+        if ( initial ){
+            headlines = await fetchHeadlines();
+        } else {
+            headlines = await fetchHeadlines(category);
+        }
         if ( headlines.status == 'ok' ) {
             displayHeadlines(headlines.articles);
         } else {
@@ -85,5 +102,17 @@ async function getHeadlines(){
         console.log(err);
     }
 }
-getHeadlines();
+
+function handleCategoricalNews(e){
+    if ( e.target.className === "nav-btn" ){
+        getHeadlines(false, e.target.textContent.toLowerCase());
+    }
+}
+
+
+window.addEventListener("load", () => {
+    getHeadlines(true);
+    const navBtns = document.getElementById("nav-btns");
+    navBtns.addEventListener("click", handleCategoricalNews)
+})
 
