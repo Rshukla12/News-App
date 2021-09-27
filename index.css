@@ -26,3 +26,20 @@
 .article-info {
     width: 60%;
 }
+#spinner {
+    border: 10px solid gray;
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    margin: 20% auto;
+    border-top: 10px solid black;
+    animation: loading ease-in-out 0.75s infinite ;
+}
+@keyframes loading {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -20,6 +20,19 @@ function titleSourceRemover(title){
     return title;
 }
 
+function displayLoading(isLoading){
+    const container = document.getElementById('headlines');
+    if ( isLoading ){
+        const spinner = document.createElement('div');
+        spinner.id = "spinner";
+        container.append(spinner)
+    } else {
+        const spinner = document.getElementById('spinner');
+        spinner.remove();
+    }
+    
+}
+
 
 function createArticleCard(article){
     const container = document.createElement('div');
@@ -60,12 +73,14 @@ function displayError(code){
 
 async function getHeadlines(){
     try {
+        displayLoading(true);
         const headlines = await fetchHeadlines();
         if ( headlines.status == 'ok' ) {
             displayHeadlines(headlines.articles);
         } else {
             displayError('500');
         }
+        displayLoading(false);
     } catch ( err ){
         console.log(err);
     }
