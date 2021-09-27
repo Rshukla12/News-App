@@ -14,6 +14,17 @@ function fetchHeadlines(category){
         });
 }
 
+function fetchSearchResults(query){
+    let url = `https://newsapi.org/v2/everything?q=${query}&sortBy=relevancy&apiKey=${API_KEY}`;
+    return fetch(url)
+        .then( (res) => {
+            return res.json();
+        })
+        .catch(( err ) => {
+            console.log(err);
+        });
+}
+
 function titleSourceRemover(title){
     const index = title.lastIndexOf('-');
     title = title.slice(0, index-1);
@@ -50,13 +61,19 @@ function createArticleCard(article){
     infoCont.className = "article-info"; 
     
     const timeStr = new Date(article.publishedAt);
-    const publish = Math.floor((new Date().getTime() - timeStr.getTime())/3600000);
+    let publish = Math.floor((new Date().getTime() - timeStr.getTime())/3600000);
+    let period = " Hrs Ago"
+    if ( publish > 24 ){
+        publish = Math.floor(publish/24);
+        period = " Days Ago"
+    }
+
     img.src = article.urlToImage;
     img.setAttribute('alt', 'Article Image')
     newsOutlet.textContent = article.source.name;
     headline.textContent = titleSourceRemover(article.title);
     content.textContent = article.description;
-    published.textContent = "Published " + publish + " Hrs Ago";
+    published.textContent = "Published " + publish + period;
 
     if ( !article.urlToImage ){
         img.src = 'https://www.albertadoctors.org/images/ama-master/feature/Stock%20photos/News.jpg'
@@ -110,8 +127,28 @@ function handleCategoricalNews(e){
     }
 }
 
+async function handleSearch(){
+    
+    try {
+        displayLoading(true);
+        const query = document.getElementById("search").value;
+    
+        if ( !query ){
+            return;
+        }
+
+        const results = await fetchSearchResults(query);
+        displayHeadlines(results.articles);
+        displayLoading(false);
+    } catch ( err ){
+        console.log(err);
+    }
+}
+
 
 window.addEventListener("load", () => {
+    const search = document.getElementById("search-btn");
     const navBtns = document.getElementById("nav-btns");
-    navBtns.addEventListener("click", handleCategoricalNews)
+    search.addEventListener("click", handleSearch);
+    navBtns.addEventListener("click", handleCategoricalNews);
 })

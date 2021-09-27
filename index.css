@@ -1,16 +1,17 @@
 /* navbar */
 #navbar {
     outline: solid 1px gray;
-    width: 90%;
+    width: 100%;
     margin: auto;
     height: 50px;
-    margin: auto;
+    display: flex;
+    justify-content: space-between;
     box-shadow: 2.5px 8px 10px 3px rgba(0, 0, 0, 0.2);
 }
-#navbar > div {
+#nav-btns {
     display: flex;
-    margin-left: 58.25%;
     height: 100%;
+    width: 41.8%;
 }
 .nav-btn {
     margin: 0%;
@@ -26,8 +27,30 @@
     padding: 0% 0% 2%;
     justify-content: space-between;
 }
-
-
+/* search bar */
+#search-bar {
+    width: 40%;
+}
+#search {
+    margin: 2% 5%;
+    padding: 0% 2%;
+    border-radius: 10px;
+    font-size: 1.25rem;
+}
+#search-btn {
+    padding: 0.5% 5%;
+    margin: 0% 0%;
+    border-width: 2px;
+    font-size: 1.25rem;
+    border-color: blue;
+    color: blue;
+    border-radius: 20px;
+    background-color: white;
+}
+#search-btn:hover{
+    filter: brightness(0.9);
+    cursor: pointer;
+}
 
 /* title */
 #title {
@@ -75,4 +98,10 @@
     100% {
         transform: rotate(360deg);
     }
+}
+h1 {
+    margin: 0px;
+}
+p {
+    font-size: 1.25rem;
 }
