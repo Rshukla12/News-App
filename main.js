@@ -1,6 +1,6 @@
 const API_KEY = '0fe15eb8597d4e9ea15a41e4e1d3d82a';
 let searchResults;
-let flag = false;
+let query;
 
 function fetchHeadlines(category){
     let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=${API_KEY}&pageSize=10`;
@@ -16,8 +16,9 @@ function fetchHeadlines(category){
         });
 }
 
-function fetchSearchResults(query){
-    let url = `https://newsapi.org/v2/everything?q=${query}&sortBy=relevancy&apiKey=${API_KEY}`;
+function fetchSearchResults(query, pageNum){
+    pageNum = pageNum || 1;
+    let url = `https://newsapi.org/v2/everything?q=${query}&sortBy=relevancy&pageSize=5&page=${pageNum}&apiKey=${API_KEY}`;
     return fetch(url)
         .then( (res) => {
             return res.json();
@@ -132,9 +133,7 @@ function handleCategoricalNews(e){
 }
 
 function displayPagination(current){
-    flag = true;
     const container = document.getElementById("headlines");
-
     const div = document.createElement("div");
 
     div.id = "pagination";
@@ -146,7 +145,7 @@ function displayPagination(current){
 
     const currBtn = document.createElement("button");
     currBtn.className = "page-btn";
-    currBtn.textContent = Number(current) + 1;
+    currBtn.textContent = Number(current);
     currBtn.name = current;
 
     const nextBtn = document.createElement("button");
@@ -154,11 +153,11 @@ function displayPagination(current){
     nextBtn.textContent = "Next"
     nextBtn.name = current + 1;
 
-    if ( current == 0 ){
+    if ( current == 1 ){
         prevBtn.disabled = true;
     }
 
-    if ( current >= Math.floor( searchResults.articles.length / 5 )-1){
+    if ( current >= Math.floor(searchResults.totalResults/5) ){
         nextBtn.disabled = true;
     }
     
@@ -167,30 +166,31 @@ function displayPagination(current){
 }
 
 function displaySearchResults(pageNum){
-    pageNum = pageNum || 0;
-    let start = pageNum * 5
-    start = start < 0 ? 0 : start;
-    const end = start + 5;
-    displayHeadlines(searchResults.articles.slice(start, end));
+    pageNum = pageNum || 1;
+    
+    displayHeadlines(searchResults.articles);
     displayPagination(pageNum);
     document.getElementById('pagination').addEventListener("click", handleSearchPageClick);
 }
 
-async function handleSearch(){
+async function handleSearch(num){
     
     try {
         displayLoading(true);
-        const query = document.getElementById("search").value;
+        if ( ( typeof num ) !== "number" ){
+            query = document.getElementById("search").value;
+            num = 1;
+        }
         const head = document.querySelector('h1');
+        head.textContent = null;
         if ( !query ){
             return;
         }
-
-        searchResults = await fetchSearchResults(query);
-        
-        displaySearchResults()
+        searchResults = await fetchSearchResults(query, num);
+        displaySearchResults(num)
         head.textContent = `Articles related to ${query}`
         displayLoading(false);
+        document.getElementById("search").value = ""
     } catch ( err ){
         console.log(err);
     }
@@ -199,7 +199,7 @@ async function handleSearch(){
 
 function handleSearchPageClick(e){
     if ( e.target.className == "page-btn"){
-        displaySearchResults(Number(e.target.name));
+        handleSearch(Number(e.target.name));
     }
 }
 
