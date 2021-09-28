@@ -1,4 +1,6 @@
 const API_KEY = '0fe15eb8597d4e9ea15a41e4e1d3d82a';
+let searchResults;
+let flag = false;
 
 function fetchHeadlines(category){
     let url = `https://newsapi.org/v2/top-headlines?country=in&apiKey=${API_KEY}&pageSize=10`;
@@ -27,7 +29,9 @@ function fetchSearchResults(query){
 
 function titleSourceRemover(title){
     const index = title.lastIndexOf('-');
-    title = title.slice(0, index-1);
+    if ( index > Math.floor(title.length * 0.7)){
+        title = title.slice(0, index-1);
+    }
     return title;
 }
 
@@ -127,18 +131,65 @@ function handleCategoricalNews(e){
     }
 }
 
+function displayPagination(current){
+    flag = true;
+    const container = document.getElementById("headlines");
+
+    const div = document.createElement("div");
+
+    div.id = "pagination";
+
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "page-btn";
+    prevBtn.textContent = "Previous";
+    prevBtn.name = current - 1;
+
+    const currBtn = document.createElement("button");
+    currBtn.className = "page-btn";
+    currBtn.textContent = Number(current) + 1;
+    currBtn.name = current;
+
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "page-btn";
+    nextBtn.textContent = "Next"
+    nextBtn.name = current + 1;
+
+    if ( current == 0 ){
+        prevBtn.disabled = true;
+    }
+
+    if ( current >= Math.floor( searchResults.articles.length / 5 )-1){
+        nextBtn.disabled = true;
+    }
+    
+    div.append( prevBtn, currBtn, nextBtn );
+    container.append(div);
+}
+
+function displaySearchResults(pageNum){
+    pageNum = pageNum || 0;
+    let start = pageNum * 5
+    start = start < 0 ? 0 : start;
+    const end = start + 5;
+    displayHeadlines(searchResults.articles.slice(start, end));
+    displayPagination(pageNum);
+    document.getElementById('pagination').addEventListener("click", handleSearchPageClick);
+}
+
 async function handleSearch(){
     
     try {
         displayLoading(true);
         const query = document.getElementById("search").value;
-    
+        const head = document.querySelector('h1');
         if ( !query ){
             return;
         }
 
-        const results = await fetchSearchResults(query);
-        displayHeadlines(results.articles);
+        searchResults = await fetchSearchResults(query);
+        
+        displaySearchResults()
+        head.textContent = `Articles related to ${query}`
         displayLoading(false);
     } catch ( err ){
         console.log(err);
@@ -146,9 +197,16 @@ async function handleSearch(){
 }
 
 
+function handleSearchPageClick(e){
+    if ( e.target.className == "page-btn"){
+        displaySearchResults(Number(e.target.name));
+    }
+}
+
 window.addEventListener("load", () => {
     const search = document.getElementById("search-btn");
     const navBtns = document.getElementById("nav-btns");
     search.addEventListener("click", handleSearch);
     navBtns.addEventListener("click", handleCategoricalNews);
-})
+});
+
